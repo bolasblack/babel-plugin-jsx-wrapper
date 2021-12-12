@@ -79,10 +79,12 @@ function view_transform(path, opts = {}) {
 
   // Not a component declaration
   if (types.isVariableDeclarator(cursor_path.parent)) {
-    if (
-      cursor_path.parent.id &&
-      cursor_path.parent.id.name[0] !== cursor_path.parent.id.name[0].toUpperCase()
-    ) {
+    if (cursor_path.parent.id && !/^[A-Z]/.test(cursor_path.parent.id.name)) {
+      return;
+    }
+  }
+  if (types.isAssignmentExpression(cursor_path.parent)) {
+    if (cursor_path.parent.left && !/^[A-Z]/.test(cursor_path.parent.left.name)) {
       return;
     }
   }

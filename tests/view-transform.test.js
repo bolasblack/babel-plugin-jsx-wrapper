@@ -40,6 +40,10 @@ describe('should work babel transform', () => {
     const code = `const a = (p) => <h1 />`;
     const expected = `const a = p => <h1 />;`;
     expect(transform(code)).toBe(expected);
+
+    const code2 = `a = (p) => <h1 />`;
+    const expected2 = `a = p => <h1 />;`;
+    expect(transform(code2)).toBe(expected2);
   });
 
   test('block arrow jsx with args', () => {
@@ -64,6 +68,10 @@ describe('should work babel transform', () => {
     const code = `const a = () => <h1 />`;
     const expected = `const a = () => <h1 />;`;
     expect(transform(code)).toBe(expected);
+
+    const code2 = `a = () => <h1 />`;
+    const expected2 = `a = () => <h1 />;`;
+    expect(transform(code2)).toBe(expected2);
   });
 
   test('fn expr jsx', () => {
@@ -88,6 +96,10 @@ describe('should work babel transform', () => {
     const code = `const a = function() { return <h1 /> }`;
     const expected = `const a = function () {\n  return <h1 />;\n};`;
     expect(transform(code)).toBe(expected);
+
+    const code2 = `a = function() { return <h1 /> }`;
+    const expected2 = `a = function () {\n  return <h1 />;\n};`;
+    expect(transform(code2)).toBe(expected2);
   });
 
   test('fn decl jsx with args', () => {
