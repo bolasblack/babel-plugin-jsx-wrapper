@@ -11,7 +11,6 @@ function transform(code) {
   }).code;
 }
 
-
 test('should work with jsx children func', () => {
   const code = `
   export const Comp = () => {
@@ -29,7 +28,6 @@ test('should work with jsx children func', () => {
 });`;
   expect(transform(code)).toBe(expected);
 });
-
 
 test('should work with map', () => {
   const code = `export const Comp = () => <A>{k.map((m) => <A><B>{m}</B></A>)}</A>;`;

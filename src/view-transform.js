@@ -77,6 +77,16 @@ function view_transform(path, opts = {}) {
   if (types.isCallExpression(cursor_path.parent)) return;
   if (types.isJSXExpressionContainer(cursor_path.parent)) return;
 
+  // Not a component declaration
+  if (types.isVariableDeclarator(cursor_path.parent)) {
+    if (
+      cursor_path.parent.id &&
+      cursor_path.parent.id.name[0] !== cursor_path.parent.id.name[0].toUpperCase()
+    ) {
+      return;
+    }
+  }
+
   let decor = 'require("realar").observe';
   switch (opts.decorator) {
     case 'mobx':
