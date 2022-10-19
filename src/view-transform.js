@@ -4,6 +4,9 @@ module.exports = {
   view_transform,
 };
 
+const processedPaths = new Set();
+const wrappedNameSuffix = '$$$$$$jsxWrapped';
+
 function view_transform(path, opts = {}) {
   let cursor = path;
   let cursor_path;
@@ -73,21 +76,26 @@ function view_transform(path, opts = {}) {
   if (!cursor) return;
   if (!is_func_expr && !is_arrow_expr) return;
 
-  // Already wrapped
-  if (types.isCallExpression(cursor_path.parent)) return;
-  if (types.isJSXExpressionContainer(cursor_path.parent)) return;
+  if (cursor_path.parentPath && processedPaths.has(cursor_path.parentPath)) return;
 
   // Not a component declaration
+  let assigningVarName;
   if (types.isVariableDeclarator(cursor_path.parent)) {
     if (cursor_path.parent.id && !/^[A-Z]/.test(cursor_path.parent.id.name)) {
       return;
     }
+    assigningVarName = cursor_path.parent.id.name;
   }
   if (types.isAssignmentExpression(cursor_path.parent)) {
     if (cursor_path.parent.left && !/^[A-Z]/.test(cursor_path.parent.left.name)) {
       return;
     }
+    assigningVarName = cursor_path.parent.id.name;
   }
+
+  // Already wrapped
+  if (types.isCallExpression(cursor_path.parent)) return;
+  if (types.isJSXExpressionContainer(cursor_path.parent)) return;
 
   let decor = 'require("realar").observe';
   switch (opts.decorator) {
@@ -103,13 +111,29 @@ function view_transform(path, opts = {}) {
       decor = opts.decorator || decor;
   }
 
+  let replacer = cursor;
+  if (assigningVarName && opts.displayName) {
+    const newVarName = `${assigningVarName}${wrappedNameSuffix}`;
+    cursor_path.parentPath.parentPath.insertBefore(
+      template(`
+        const ${newVarName} = BODY;
+        ${newVarName}.displayName = "${opts.decorator ?? 'wrapped'}(${assigningVarName})";
+      `)({
+        BODY: cursor,
+      })
+    );
+    replacer = types.identifier(newVarName);
+  }
+
   let tpl = `${decor}(BODY)`;
   if (opts.memo) {
     tpl = `require("react").memo(${tpl})`;
   }
 
   const decorated = template(tpl)({
-    BODY: cursor,
+    BODY: replacer,
   });
   cursor_path.replaceWith(decorated);
+
+  processedPaths.add(cursor_path.parentPath);
 }
