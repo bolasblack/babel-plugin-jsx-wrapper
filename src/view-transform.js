@@ -1,4 +1,5 @@
 const { types, template, traverse } = require('@babel/core');
+const { addNamed } = require("@babel/helper-module-imports");
 
 module.exports = {
   view_transform,
@@ -102,39 +103,48 @@ function view_transform(path, opts = {}) {
   if (types.isAssignmentExpression(cursor_path.parent)) {
     assigningVarName = cursor_path.parent.id.name;
   }
-  if (assigningVarName && assigningVarName.endsWith(wrappedNameSuffix)) return
+  if (assigningVarName && assigningVarName.endsWith(wrappedNameSuffix)) return;
 
-  let decor = '';
-  switch (opts.decorator) {
-    case 'mobx':
-    case 'mobx-react':
-      decor = 'require("mobx-react").observer';
-      break;
-    case 'mobx-lite':
-    case 'mobx-react-lite':
-      decor = 'require("mobx-react-lite").observer';
-      break;
-    case 'remini-react':
-    case 'remini':
-      decor = 'require("remini/react").component';
-      break;
-    case 'remini-preact':
-      decor = 'require("remini/preact").component';
-      break;
-    case 'realar':
-      decor = 'require("realar").observe';
-      break;
-    default:
-      decor = opts.decorator || decor;
+  let decoratorModule = opts.decoratorModule;
+  let decoratorFn = opts.decoratorFn;
+  if (decoratorModule == null || decoratorFn == null) {
+    switch (opts.decorator) {
+      case 'mobx':
+      case 'mobx-react':
+        decoratorModule = 'mobx-react';
+        decoratorFn = 'observer';
+        break;
+      case 'mobx-lite':
+      case 'mobx-react-lite':
+        decoratorModule = 'mobx-react-lite';
+        decoratorFn = 'observer';
+        break;
+      case 'remini-react':
+      case 'remini':
+        decoratorModule = 'remini/react';
+        decoratorFn = 'component';
+        break;
+      case 'remini-preact':
+        decoratorModule = 'remini/preact';
+        decoratorFn = 'component';
+        break;
+      case 'realar':
+        decoratorModule = 'realar';
+        decoratorFn = 'observe';
+        break;
+      default:
+        decoratorFn = opts.decorator;
+    }
   }
 
   let replacer = cursor;
   if (assigningVarName && opts.displayName) {
     const newVarName = `${assigningVarName}${wrappedNameSuffix}`;
+    const wrapperName = (decoratorModule == null ? '' : `${decoratorModule}.`) + decoratorFn
     cursor_path.parentPath.parentPath.insertBefore(
       template(`
         const ${newVarName} = BODY;
-        ${newVarName}.displayName = "${opts.decorator ?? 'wrapped'}(${assigningVarName})";
+        ${newVarName}.displayName = "${wrapperName || 'wrapped'}(${assigningVarName})";
       `)({
         BODY: cursor,
       })
@@ -142,7 +152,17 @@ function view_transform(path, opts = {}) {
     replacer = types.identifier(newVarName);
   }
 
-  let tpl = `${decor}(BODY)`;
+  let tpl = `BODY`
+  if (decoratorFn != null) {
+    if (decoratorModule == null) {
+      tpl = `${decoratorFn}(${tpl})`;
+    } else if (opts.esImport) {
+      const importedId = addNamed(path, decoratorFn, decoratorModule);
+      tpl = `${importedId.name}(${tpl})`;
+    } else {
+      tpl = `require("${decoratorModule}").${decoratorFn}(${tpl})`;
+    }
+  }
   if (opts.memo) {
     tpl = `require("react").memo(${tpl})`;
   }

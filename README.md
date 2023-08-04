@@ -41,7 +41,7 @@ const App = () => (
 module.exports = {
   "plugins": [
     ["jsx-wrapper", {
-      "decorator": "mobx" // or possible value "mobx-lite", by default "realar"
+      "decorator": "mobx" // or possible value "mobx-lite"
     }]
   ]
 };
@@ -81,7 +81,7 @@ You are no need more to wrap (decorate) JSX components to `observe` function! It
 // .babelrc.js
 module.exports = {
   "plugins": [
-    "jsx-wrapper" // by default "realar"
+    "jsx-wrapper"
   ]
 };
 ```
@@ -107,20 +107,28 @@ module.exports = {
 };
 ```
 
+**decorator** - function name that using to wrapping jsx arrow function component. Available values: `mobx-react-lite`, `mobx-react`, `remini-react`, `remini-preact`, `realar`. **Will be disabled if `decoratorModule` and `decoratorFn` defined**
+
+**decoratorModule**, **decoratorFn** - module and function name that using to wrapping jsx function component.
+
+**esImport** - boolean flag. Use esmodule `import` intead of `require`.
+
 **root** - string that provide root path for "exclude" and "include" options.
 
 **memo** - boolean flag. Wrap all arrow function React component to `React.memo`. `false` by default.
 
-**decorator** - function name that used instead of `observe` function from Realar. (_For example: "require('mobx-react').observer"_) Or name of presetted vendor: "mobx", "mobx-lite", "realar" (by default**.
+**ucfirst** - boolean flag. Wrap only if first letter of the function name is uppercased. `true` by default.
 
-**displayName** - boolean flag. Add `displaName` property the original component.
+**displayName** - boolean flag. Add `displaName` property to the original component.
 
 ### Install
 
 ```bash
-npm i --save-dev babel-plugin-jsx-wrapper
+npm i --save-dev @c4605/babel-plugin-jsx-wrapper
 # or
-yarn add babel-plugin-jsx-wrapper
+yarn add -D @c4605/babel-plugin-jsx-wrapper
+# or
+pnpm install -D @c4605/babel-plugin-jsx-wrapper
 ```
 
 And update your babel config:
@@ -130,7 +138,7 @@ And update your babel config:
 {
   "plugins": [
     ["jsx-wrapper", {
-      "decorator": "mobx" // by default "realar"
+      "decorator": "mobx"
     }]
   ]
 }

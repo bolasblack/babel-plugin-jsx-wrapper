@@ -1,7 +1,7 @@
 {
   "name": "@c4605/babel-plugin-jsx-wrapper",
   "description": "Automatic observe jsx arrow functions",
-  "version": "1.0.0-1",
+  "version": "1.0.0-2",
   "main": "./src/plugin.js",
   "files": [
     "src"
@@ -12,6 +12,7 @@
     "format": "prettier --write src tests"
   },
   "dependencies": {
+    "@babel/helper-module-imports": "^7.22.5",
     "matcher": "3.0.0"
   },
   "peerDependencies": {

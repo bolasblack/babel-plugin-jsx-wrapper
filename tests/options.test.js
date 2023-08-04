@@ -1,9 +1,9 @@
 const babel = require('@babel/core');
 const plugin = require('../src/plugin');
 
-function transform(code, { decorator, filename, include, exclude, root, memo, displayName }) {
+function transform(code, { filename, ...restOpts }) {
   return babel.transform(code, {
-    plugins: [[plugin, { decorator, include, exclude, root, memo, displayName }]],
+    plugins: [[plugin, restOpts]],
     code: true,
     ast: false,
     filename,
@@ -82,21 +82,33 @@ test('should work ucfirst option with transform only if uppercase first letter i
 
 test('should work switch on memo option', () => {
   const code = `const A = p => <h1 />;`;
-  const decorated = `const A = require("react").memo(k(p => <h1 />));`;
-  expect(transform(code, { filename: __filename, decorator: 'k', memo: true })).toBe(decorated);
+  const expected = `const A = require("react").memo(k(p => <h1 />));`;
+  expect(transform(code, { filename: __filename, decorator: 'k', memo: true })).toBe(expected);
 });
 
 test('should work switch off memo option', () => {
   const code = `const A = p => <h1 />;`;
-  const decorated = `const A = p => <h1 />;`;
-  expect(transform(code, { filename: __filename, memo: false })).toBe(decorated);
+  const expected = `const A = p => <h1 />;`;
+  expect(transform(code, { filename: __filename, memo: false })).toBe(expected);
 });
 
 test('should work switch on displayName option', () => {
   const code = `const A = p => <h1 />;`;
-  const decorated = `const A$$$$$$jsxWrapped = p => <h1 />;
+  const expected = `const A$$$$$$jsxWrapped = p => <h1 />;
 
 A$$$$$$jsxWrapped.displayName = "k(A)";
 const A = k(A$$$$$$jsxWrapped);`;
-  expect(transform(code, { filename: __filename, decorator: 'k', displayName: true })).toBe(decorated);
+  expect(transform(code, { filename: __filename, decorator: 'k', displayName: true })).toBe(expected);
+});
+
+test('should work switch on esImport option', () => {
+  const code = `const Abc = (p) => <h1 />`;
+  const expected = `import { k as _k } from "a";
+
+const Abc$$$$$$jsxWrapped = p => <h1 />;
+
+Abc$$$$$$jsxWrapped.displayName = "a.k(Abc)";
+
+const Abc = _k(Abc$$$$$$jsxWrapped);`;
+  expect(transform(code, { filename: __filename, decoratorModule: 'a', decoratorFn: 'k', displayName: true, esImport: true })).toBe(expected);
 });
