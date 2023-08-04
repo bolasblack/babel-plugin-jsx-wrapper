@@ -76,36 +76,53 @@ function view_transform(path, opts = {}) {
   if (!cursor) return;
   if (!is_func_expr && !is_arrow_expr) return;
 
-  if (cursor_path.parentPath && processedPaths.has(cursor_path.parentPath)) return;
-
-  // Not a component declaration
-  let assigningVarName;
-  if (types.isVariableDeclarator(cursor_path.parent)) {
-    if (cursor_path.parent.id && !/^[A-Z]/.test(cursor_path.parent.id.name)) {
-      return;
-    }
-    assigningVarName = cursor_path.parent.id.name;
-  }
-  if (types.isAssignmentExpression(cursor_path.parent)) {
-    if (cursor_path.parent.left && !/^[A-Z]/.test(cursor_path.parent.left.name)) {
-      return;
-    }
-    assigningVarName = cursor_path.parent.id.name;
-  }
-
   // Already wrapped
   if (types.isCallExpression(cursor_path.parent)) return;
   if (types.isJSXExpressionContainer(cursor_path.parent)) return;
+  if (cursor_path.parentPath && processedPaths.has(cursor_path.parentPath)) return;
+  
+  if (opts.ucfirst !== false) {
+    // Check if first letter of function name is uppercased
+    if (types.isVariableDeclarator(cursor_path.parent)) {
+      if (cursor_path.parent.id && !/^[A-Z]/.test(cursor_path.parent.id.name)) {
+        return;
+      }
+    }
+    if (types.isAssignmentExpression(cursor_path.parent)) {
+      if (cursor_path.parent.left && !/^[A-Z]/.test(cursor_path.parent.left.name)) {
+        return;
+      }
+    }
+  }
 
-  let decor = 'require("realar").observe';
+  let assigningVarName;
+  if (types.isVariableDeclarator(cursor_path.parent)) {
+    assigningVarName = cursor_path.parent.id.name;
+  }
+  if (types.isAssignmentExpression(cursor_path.parent)) {
+    assigningVarName = cursor_path.parent.id.name;
+  }
+  if (assigningVarName && assigningVarName.endsWith(wrappedNameSuffix)) return
+
+  let decor = '';
   switch (opts.decorator) {
     case 'mobx':
+    case 'mobx-react':
       decor = 'require("mobx-react").observer';
       break;
     case 'mobx-lite':
+    case 'mobx-react-lite':
       decor = 'require("mobx-react-lite").observer';
       break;
+    case 'remini-react':
+    case 'remini':
+      decor = 'require("remini/react").component';
+      break;
+    case 'remini-preact':
+      decor = 'require("remini/preact").component';
+      break;
     case 'realar':
+      decor = 'require("realar").observe';
       break;
     default:
       decor = opts.decorator || decor;

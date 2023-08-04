@@ -1,15 +1,16 @@
 const babel = require('@babel/core');
 const plugin = require('../src/plugin');
 
-const decorator_fn_name = 'require("realar").observe';
+const decorator_fn_name = 'require("remini/react").component';
 
 function transform(code) {
   return babel.transform(code, {
-    plugins: [plugin],
+    plugins: [[plugin, { decorator: 'remini' }]],
     code: true,
     ast: false,
   }).code;
 }
+
 
 test('should work with jsx children func', () => {
   const code = `
@@ -28,6 +29,7 @@ test('should work with jsx children func', () => {
 });`;
   expect(transform(code)).toBe(expected);
 });
+
 
 test('should work with map', () => {
   const code = `export const Comp = () => <A>{k.map((m) => <A><B>{m}</B></A>)}</A>;`;

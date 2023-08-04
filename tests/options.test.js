@@ -1,9 +1,9 @@
 const babel = require('@babel/core');
 const plugin = require('../src/plugin');
 
-function transform(code, { decorator, filename, include, exclude, root, memo }) {
+function transform(code, { decorator, filename, include, exclude, root, memo, displayName }) {
   return babel.transform(code, {
-    plugins: [[plugin, { decorator, include, exclude, root, memo }]],
+    plugins: [[plugin, { decorator, include, exclude, root, memo, displayName }]],
     code: true,
     ast: false,
     filename,
@@ -68,6 +68,18 @@ test('should work root option', () => {
   ).toBe(decorated);
 });
 
+test('should work ucfirst option with no transform usually', () => {
+  const code = `const a = (p) => <h1 />`;
+  const expected = `const a = p => <h1 />;`;
+  expect(transform(code, { decorator: 'k', ucfirst: true })).toBe(expected);
+});
+
+test('should work ucfirst option with transform only if uppercase first letter in name', () => {
+  const code = `const Abc = (p) => <h1 />`;
+  const expected = `const Abc = k(p => <h1 />);`;
+  expect(transform(code, { decorator: 'k', ucfirst: true })).toBe(expected);
+});
+
 test('should work switch on memo option', () => {
   const code = `const A = p => <h1 />;`;
   const decorated = `const A = require("react").memo(k(p => <h1 />));`;
@@ -76,6 +88,15 @@ test('should work switch on memo option', () => {
 
 test('should work switch off memo option', () => {
   const code = `const A = p => <h1 />;`;
-  const decorated = `const A = require("realar").observe(p => <h1 />);`;
+  const decorated = `const A = p => <h1 />;`;
   expect(transform(code, { filename: __filename, memo: false })).toBe(decorated);
+});
+
+test('should work switch on displayName option', () => {
+  const code = `const A = p => <h1 />;`;
+  const decorated = `const A$$$$$$jsxWrapped = p => <h1 />;
+
+A$$$$$$jsxWrapped.displayName = "k(A)";
+const A = k(A$$$$$$jsxWrapped);`;
+  expect(transform(code, { filename: __filename, decorator: 'k', displayName: true })).toBe(decorated);
 });
