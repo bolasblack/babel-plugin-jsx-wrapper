@@ -1,8 +1,10 @@
 # babel-plugin-jsx-wrapper
 
-[![npm version](https://img.shields.io/npm/v/babel-plugin-jsx-wrapper?style=flat-square)](https://www.npmjs.com/package/babel-plugin-jsx-wrapper) [![code coverage](https://img.shields.io/coveralls/github/betula/babel-plugin-jsx-wrapper?style=flat-square)](https://coveralls.io/github/betula/babel-plugin-jsx-wrapper)
+[![npm version](https://img.shields.io/npm/v/@c4605/babel-plugin-jsx-wrapper?style=flat-square)](https://www.npmjs.com/package/@c4605/babel-plugin-jsx-wrapper)
 
 Automatic observe jsx arrow functions for smartify and purify your code :+1:
+
+> **Enhanced fork** of [re-js/babel-plugin-jsx-wrapper](https://github.com/re-js/babel-plugin-jsx-wrapper) with [additional features and improvements](#enhancements-over-upstream).
 
 That plugin for babel wraps all not wrapped arrow functions (that contains JSX and defined in file global scope) to wrapper function with easy configuring [Mobx](https://github.com/mobxjs/mobx) and [Realar](https://github.com/betula/realar) (_but possible for configure to custom one_). Less code more effectiveness!
 
@@ -120,6 +122,117 @@ module.exports = {
 **ucfirst** - boolean flag. Wrap only if first letter of the function name is uppercased. `true` by default.
 
 **displayName** - boolean flag. Add `displaName` property to the original component.
+
+## Enhancements over upstream
+
+This fork provides several enhancements compared to [re-js/babel-plugin-jsx-wrapper](https://github.com/re-js/babel-plugin-jsx-wrapper):
+
+### 1. ES Module Import Support
+
+Use modern ES module imports instead of `require()` for better tree-shaking and bundle optimization.
+
+```javascript
+// .babelrc.js
+module.exports = {
+  "plugins": [
+    ["@c4605/babel-plugin-jsx-wrapper", {
+      "decorator": "mobx-react-lite",
+      "esImport": true  // Use import instead of require
+    }]
+  ]
+};
+```
+
+Generated code:
+```javascript
+// With esImport: true
+import { observer } from "mobx-react-lite";
+const App = observer(() => <div>...</div>);
+
+// Without esImport (default)
+const App = require("mobx-react-lite").observer(() => <div>...</div>);
+```
+
+### 2. Custom Decorator Configuration
+
+Flexible decorator configuration with `decoratorModule` and `decoratorFn` options for custom wrapper functions.
+
+```javascript
+// .babelrc.js
+module.exports = {
+  "plugins": [
+    ["@c4605/babel-plugin-jsx-wrapper", {
+      "decoratorModule": "my-custom-library",
+      "decoratorFn": "myWrapperFunction",
+      "esImport": true
+    }]
+  ]
+};
+```
+
+### 3. DisplayName Support
+
+Automatically add `displayName` to components for better debugging in React DevTools.
+
+```javascript
+// .babelrc.js
+module.exports = {
+  "plugins": [
+    ["@c4605/babel-plugin-jsx-wrapper", {
+      "decorator": "mobx-react-lite",
+      "displayName": true
+    }]
+  ]
+};
+```
+
+Source code:
+```javascript
+const MyComponent = () => <div>Hello</div>;
+```
+
+Generated code:
+```javascript
+const MyComponent$$$$$$jsxWrapped = () => <div>Hello</div>;
+MyComponent$$$$$$jsxWrapped.displayName = "mobx-react-lite.observer(MyComponent)";
+const MyComponent = require("mobx-react-lite").observer(MyComponent$$$$$$jsxWrapped);
+```
+
+### 4. React.memo Support
+
+Automatically wrap components with `React.memo` for performance optimization.
+
+```javascript
+// .babelrc.js
+module.exports = {
+  "plugins": [
+    ["@c4605/babel-plugin-jsx-wrapper", {
+      "decorator": "mobx-react-lite",
+      "memo": true
+    }]
+  ]
+};
+```
+
+### 5. Improved Duplicate Prevention
+
+Enhanced mechanism to prevent double-wrapping of components:
+- Tracks processed paths with a `Set`
+- Uses unique suffix (`$$$$$$jsxWrapped`) to identify already wrapped components
+- More robust than the upstream implementation
+
+### Summary of Enhancements
+
+| Feature | Upstream | This Fork |
+|---------|----------|-----------|
+| ES Module imports | ❌ | ✅ `esImport` option |
+| Custom decorator config | ❌ | ✅ `decoratorModule` + `decoratorFn` |
+| DisplayName support | ❌ | ✅ `displayName` option |
+| React.memo support | ❌ | ✅ `memo` option |
+| Duplicate prevention | Basic | Enhanced with Set + suffix |
+| Preset decorators | ✅ | ✅ Same presets |
+| Include/exclude patterns | ✅ | ✅ Same |
+| Ucfirst option | ✅ | ✅ Same |
 
 ### Install
 
