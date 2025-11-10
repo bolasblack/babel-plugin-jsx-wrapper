@@ -57,7 +57,7 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/betula/babel-plugin-jsx-wrapper/issues"
+    "url": "https://github.com/bolasblack/babel-plugin-jsx-wrapper/issues"
   },
-  "homepage": "https://github.com/betula/babel-plugin-jsx-wrapper#readme"
+  "homepage": "https://github.com/bolasblack/babel-plugin-jsx-wrapper#readme"
 }

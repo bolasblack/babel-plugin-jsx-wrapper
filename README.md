@@ -8,6 +8,31 @@ Automatic observe jsx arrow functions for smartify and purify your code :+1:
 
 That plugin for babel wraps all not wrapped arrow functions (that contains JSX and defined in file global scope) to wrapper function with easy configuring [Mobx](https://github.com/mobxjs/mobx) and [Realar](https://github.com/betula/realar) (_but possible for configure to custom one_). Less code more effectiveness!
 
+### Install
+
+```bash
+npm i --save-dev @c4605/babel-plugin-jsx-wrapper
+# or
+yarn add -D @c4605/babel-plugin-jsx-wrapper
+# or
+pnpm install -D @c4605/babel-plugin-jsx-wrapper
+```
+
+And update your babel config:
+
+```javascript
+// .babelrc
+{
+  "plugins": [
+    ["@c4605/jsx-wrapper", {
+      "decorator": "mobx"
+    }]
+  ]
+}
+```
+
+Enjoy and happy coding!
+
 ### Mobx
 
 ```javascript
@@ -42,7 +67,7 @@ const App = () => (
 // .babelrc.js
 module.exports = {
   "plugins": [
-    ["jsx-wrapper", {
+    ["@c4605/jsx-wrapper", {
       "decorator": "mobx" // or possible value "mobx-lite"
     }]
   ]
@@ -83,7 +108,7 @@ You are no need more to wrap (decorate) JSX components to `observe` function! It
 // .babelrc.js
 module.exports = {
   "plugins": [
-    "jsx-wrapper"
+    "@c4605/jsx-wrapper"
   ]
 };
 ```
@@ -98,7 +123,7 @@ module.exports = {
 // .babelrc.js
 module.exports = {
   "plugins": [
-    ["jsx-wrapper", {
+    ["@c4605/jsx-wrapper", {
       "include": [
         "src/components/*",
         "src/pages/*"
@@ -135,7 +160,7 @@ Use modern ES module imports instead of `require()` for better tree-shaking and 
 // .babelrc.js
 module.exports = {
   "plugins": [
-    ["@c4605/babel-plugin-jsx-wrapper", {
+    ["@c4605/jsx-wrapper", {
       "decorator": "mobx-react-lite",
       "esImport": true  // Use import instead of require
     }]
@@ -161,7 +186,7 @@ Flexible decorator configuration with `decoratorModule` and `decoratorFn` option
 // .babelrc.js
 module.exports = {
   "plugins": [
-    ["@c4605/babel-plugin-jsx-wrapper", {
+    ["@c4605/jsx-wrapper", {
       "decoratorModule": "my-custom-library",
       "decoratorFn": "myWrapperFunction",
       "esImport": true
@@ -178,7 +203,7 @@ Automatically add `displayName` to components for better debugging in React DevT
 // .babelrc.js
 module.exports = {
   "plugins": [
-    ["@c4605/babel-plugin-jsx-wrapper", {
+    ["@c4605/jsx-wrapper", {
       "decorator": "mobx-react-lite",
       "displayName": true
     }]
@@ -206,7 +231,7 @@ Automatically wrap components with `React.memo` for performance optimization.
 // .babelrc.js
 module.exports = {
   "plugins": [
-    ["@c4605/babel-plugin-jsx-wrapper", {
+    ["@c4605/jsx-wrapper", {
       "decorator": "mobx-react-lite",
       "memo": true
     }]
@@ -233,28 +258,3 @@ Enhanced mechanism to prevent double-wrapping of components:
 | Preset decorators | ✅ | ✅ Same presets |
 | Include/exclude patterns | ✅ | ✅ Same |
 | Ucfirst option | ✅ | ✅ Same |
-
-### Install
-
-```bash
-npm i --save-dev @c4605/babel-plugin-jsx-wrapper
-# or
-yarn add -D @c4605/babel-plugin-jsx-wrapper
-# or
-pnpm install -D @c4605/babel-plugin-jsx-wrapper
-```
-
-And update your babel config:
-
-```javascript
-// .babelrc
-{
-  "plugins": [
-    ["jsx-wrapper", {
-      "decorator": "mobx"
-    }]
-  ]
-}
-```
-
-Enjoy and happy coding!
