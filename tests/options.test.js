@@ -95,7 +95,6 @@ test('should work switch off memo option', () => {
 test('should work switch on displayName option', () => {
   const code = `const A = p => <h1 />;`;
   const expected = `const A$$$$$$jsxWrapped = p => <h1 />;
-
 A$$$$$$jsxWrapped.displayName = "k(A)";
 const A = k(A$$$$$$jsxWrapped);`;
   expect(transform(code, { filename: __filename, decorator: 'k', displayName: true })).toBe(expected);
@@ -104,11 +103,8 @@ const A = k(A$$$$$$jsxWrapped);`;
 test('should work switch on esImport option', () => {
   const code = `const Abc = (p) => <h1 />`;
   const expected = `import { k as _k } from "a";
-
 const Abc$$$$$$jsxWrapped = p => <h1 />;
-
 Abc$$$$$$jsxWrapped.displayName = "a.k(Abc)";
-
 const Abc = _k(Abc$$$$$$jsxWrapped);`;
   expect(transform(code, { filename: __filename, decoratorModule: 'a', decoratorFn: 'k', displayName: true, esImport: true })).toBe(expected);
 });

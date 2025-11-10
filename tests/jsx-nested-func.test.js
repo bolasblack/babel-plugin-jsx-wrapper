@@ -58,7 +58,6 @@ test('should work with nested func', () => {
   };`;
   const expected = `export const Comp = ${decorator_fn_name}(() => {
   const a = () => <A><B></B></A>;
-
   return a();
 });`;
   expect(transform(code)).toBe(expected);
