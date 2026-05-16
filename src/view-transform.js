@@ -77,8 +77,13 @@ function view_transform(path, opts = {}) {
   if (!cursor) return;
   if (!is_func_expr && !is_arrow_expr) return;
 
-  // Already wrapped
+  // Already wrapped, or passed as an argument to a call (e.g. an
+  // `Array.prototype.map` callback). `OptionalCallExpression` (`foo?.map(...)`)
+  // must be treated the same as `CallExpression` here: otherwise the callback
+  // gets wrapped in the decorator, which returns an object, and `.map` throws
+  // "TypeError: object is not a function".
   if (types.isCallExpression(cursor_path.parent)) return;
+  if (types.isOptionalCallExpression(cursor_path.parent)) return;
   if (types.isJSXExpressionContainer(cursor_path.parent)) return;
   if (cursor_path.parentPath && processedPaths.has(cursor_path.parentPath)) return;
   

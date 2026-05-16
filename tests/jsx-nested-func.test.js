@@ -37,6 +37,14 @@ test('should work with map', () => {
   expect(transform(code)).toBe(expected);
 });
 
+test('should work with optional-chained map', () => {
+  const code = `export const Comp = () => { return <><A />{k?.map((m) => <B>{m}</B>)}</>; };`;
+  const expected = `export const Comp = ${decorator_fn_name}(() => {
+  return <><A />{k?.map(m => <B>{m}</B>)}</>;
+});`;
+  expect(transform(code)).toBe(expected);
+});
+
 test('should work with prop func', () => {
   const code = `export const Comp = () => <View prop={() => (<B><C></C></B>)}><View></View></View>;`;
   const expected = `export const Comp = ${decorator_fn_name}(() => <View prop={() => <B><C></C></B>}><View></View></View>);`;
